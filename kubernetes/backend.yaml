@@ -1,0 +1,57 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evcharge-backend
+  namespace: evcharge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evcharge-backend
+  template:
+    metadata:
+      labels:
+        app: evcharge-backend
+    spec:
+      containers:
+        - name: backend
+          image: evcharge-backend:1.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://evcharge-mysql:3306/evcharge_db?useSSL=false&allowPublicKeyRetrieval=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: evcharge-db-secret
+                  key: mysql-root-password
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: evcharge-backend
+  namespace: evcharge
+spec:
+  selector:
+    app: evcharge-backend
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP

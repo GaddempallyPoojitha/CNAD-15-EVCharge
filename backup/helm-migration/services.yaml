@@ -1,0 +1,94 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"evcharge-backend","namespace":"evcharge"},"spec":{"ports":[{"port":8080,"targetPort":8080}],"selector":{"app":"evcharge-backend"},"type":"ClusterIP"}}
+    creationTimestamp: "2026-10-19T13:38:48Z"
+    name: evcharge-backend
+    namespace: evcharge
+    resourceVersion: "57389"
+    uid: 8918c420-7ca6-44bc-9f5a-872ea5a88a86
+  spec:
+    clusterIP: 10.96.213.98
+    clusterIPs:
+    - 10.96.213.98
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: evcharge-backend
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"evcharge-frontend","namespace":"evcharge"},"spec":{"ports":[{"nodePort":30081,"port":80,"targetPort":80}],"selector":{"app":"evcharge-frontend"},"type":"NodePort"}}
+    creationTimestamp: "2026-10-19T13:41:53Z"
+    name: evcharge-frontend
+    namespace: evcharge
+    resourceVersion: "57621"
+    uid: 10527d4c-092f-4a55-90d1-dda16bd8a7a8
+  spec:
+    clusterIP: 10.109.113.26
+    clusterIPs:
+    - 10.109.113.26
+    externalTrafficPolicy: Cluster
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - nodePort: 30081
+      port: 80
+      protocol: TCP
+      targetPort: 80
+    selector:
+      app: evcharge-frontend
+    sessionAffinity: None
+    type: NodePort
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"evcharge-mysql","namespace":"evcharge"},"spec":{"ports":[{"port":3306,"targetPort":3306}],"selector":{"app":"evcharge-mysql"}}}
+    creationTimestamp: "2026-10-19T13:34:51Z"
+    name: evcharge-mysql
+    namespace: evcharge
+    resourceVersion: "57123"
+    uid: 971f64d9-518a-42f7-ab6e-772d38378921
+  spec:
+    clusterIP: 10.109.20.144
+    clusterIPs:
+    - 10.109.20.144
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 3306
+      protocol: TCP
+      targetPort: 3306
+    selector:
+      app: evcharge-mysql
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""

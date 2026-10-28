@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"evcharge-mysql","namespace":"evcharge"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"evcharge-mysql"}},"template":{"metadata":{"labels":{"app":"evcharge-mysql"}},"spec":{"containers":[{"env":[{"name":"MYSQL_DATABASE","value":"evcharge_db"},{"name":"MYSQL_ROOT_PASSWORD","valueFrom":{"secretKeyRef":{"key":"mysql-root-password","name":"evcharge-db-secret"}}}],"image":"mysql:8.0","name":"mysql","ports":[{"containerPort":3306}],"readinessProbe":{"exec":{"command":["sh","-c","mysqladmin ping -h 127.0.0.1 -uroot -p\"$MYSQL_ROOT_PASSWORD\""]},"initialDelaySeconds":20,"periodSeconds":10},"volumeMounts":[{"mountPath":"/var/lib/mysql","name":"mysql-data"},{"mountPath":"/docker-entrypoint-initdb.d","name":"init-script"}]}],"volumes":[{"name":"mysql-data","persistentVolumeClaim":{"claimName":"evcharge-mysql-pvc"}},{"configMap":{"name":"evcharge-db-init"},"name":"init-script"}]}}}}
+  creationTimestamp: "2026-10-19T13:34:51Z"
+  generation: 1
+  name: evcharge-mysql
+  namespace: evcharge
+  resourceVersion: "57172"
+  uid: 951faee9-9192-40fd-b683-cc74fbc58bea
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: evcharge-mysql
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: evcharge-mysql
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_DATABASE
+          value: evcharge_db
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: mysql-root-password
+              name: evcharge-db-secret
+        image: mysql:8.0
+        imagePullPolicy: IfNotPresent
+        name: mysql
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - mysqladmin ping -h 127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD"
+          failureThreshold: 3
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mysql-data
+        - mountPath: /docker-entrypoint-initdb.d
+          name: init-script
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: evcharge-mysql-pvc
+      - configMap:
+          defaultMode: 420
+          name: evcharge-db-init
+        name: init-script
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2026-10-19T13:35:13Z"
+    lastUpdateTime: "2026-10-19T13:35:13Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2026-10-19T13:34:51Z"
+    lastUpdateTime: "2026-10-19T13:35:13Z"
+    message: ReplicaSet "evcharge-mysql-6d57b54b96" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  terminatingReplicas: 0
+  updatedReplicas: 1

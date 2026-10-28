@@ -1,0 +1,70 @@
+{{- if .Values.mysql.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evcharge-mysql
+  labels:
+    app.kubernetes.io/name: evcharge-mysql
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evcharge-mysql
+  template:
+    metadata:
+      labels:
+        app: evcharge-mysql
+        app.kubernetes.io/name: evcharge-mysql
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: mysql
+          image: {{ .Values.mysql.image | quote }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mysql.database | quote }}
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.existingSecret }}
+                  key: {{ .Values.mysql.secretKey }}
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - mysqladmin ping -h 127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD"
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.mysql.existingClaim }}
+        - name: init-script
+          configMap:
+            name: {{ .Values.mysql.existingInitConfigMap }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: evcharge-mysql
+  labels:
+    app.kubernetes.io/name: evcharge-mysql
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  selector:
+    app: evcharge-mysql
+  ports:
+    - name: mysql
+      port: {{ .Values.mysql.service.port }}
+      targetPort: 3306
+{{- end }}

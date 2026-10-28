@@ -1,0 +1,29 @@
+:root {
+  color-scheme: dark;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: #080d17;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button, input, select {
+  font-family: inherit;
+}
+
+::selection {
+  background: #426be8;
+  color: white;
+}

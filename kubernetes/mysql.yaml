@@ -1,0 +1,73 @@
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: evcharge-mysql-pvc
+  namespace: evcharge
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evcharge-mysql
+  namespace: evcharge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evcharge-mysql
+  template:
+    metadata:
+      labels:
+        app: evcharge-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              value: evcharge_db
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: evcharge-db-secret
+                  key: mysql-root-password
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - mysqladmin ping -h 127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD"
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: evcharge-mysql-pvc
+        - name: init-script
+          configMap:
+            name: evcharge-db-init
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: evcharge-mysql
+  namespace: evcharge
+spec:
+  selector:
+    app: evcharge-mysql
+  ports:
+    - port: 3306
+      targetPort: 3306

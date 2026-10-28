@@ -1,0 +1,42 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evcharge-frontend
+  namespace: evcharge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evcharge-frontend
+  template:
+    metadata:
+      labels:
+        app: evcharge-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: evcharge-frontend:1.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: evcharge-frontend
+  namespace: evcharge
+spec:
+  type: NodePort
+  selector:
+    app: evcharge-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30081

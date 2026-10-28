@@ -1,0 +1,49 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  creationTimestamp: "2026-10-19T15:31:54Z"
+  name: evcharge-backend
+  namespace: evcharge
+  resourceVersion: "64097"
+  uid: 008ea95e-26fd-492d-bfab-adcfbf150b9f
+spec:
+  maxReplicas: 3
+  metrics:
+  - resource:
+      name: cpu
+      target:
+        averageUtilization: 70
+        type: Utilization
+    type: Resource
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: evcharge-backend
+status:
+  conditions:
+  - lastTransitionTime: "2026-10-19T15:32:09Z"
+    message: recommended size matches current size
+    reason: ReadyForNewScale
+    status: "True"
+    type: AbleToScale
+  - lastTransitionTime: "2026-10-19T15:32:39Z"
+    message: the HPA was able to successfully calculate a replica count from cpu resource
+      utilization (percentage of request)
+    reason: ValidMetricFound
+    status: "True"
+    type: ScalingActive
+  - lastTransitionTime: "2026-10-19T15:32:39Z"
+    message: the desired count is within the acceptable range
+    reason: DesiredWithinRange
+    status: "False"
+    type: ScalingLimited
+  currentMetrics:
+  - resource:
+      current:
+        averageUtilization: 4
+        averageValue: 4m
+      name: cpu
+    type: Resource
+  currentReplicas: 1
+  desiredReplicas: 1

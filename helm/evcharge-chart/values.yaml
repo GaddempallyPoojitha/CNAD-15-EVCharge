@@ -1,0 +1,54 @@
+
+namespace: evcharge
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: evcharge-frontend
+    tag: "1.1"
+    pullPolicy: Never
+  service:
+    type: NodePort
+    port: 80
+    targetPort: 80
+    nodePort: 30081
+
+backend:
+  replicaCount: 1
+  image:
+    repository: evcharge-backend
+    tag: "1.0"
+    pullPolicy: Never
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+  datasource:
+    url: "jdbc:mysql://evcharge-mysql:3306/evcharge_db?useSSL=false&allowPublicKeyRetrieval=true"
+    username: root
+  probes:
+    readinessInitialDelaySeconds: 40
+    livenessInitialDelaySeconds: 60
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "768Mi"
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 70
+
+mysql:
+  enabled: false
+  image: mysql:8.0
+  service:
+    port: 3306
+  database: evcharge_db
+  existingClaim: evcharge-mysql-pvc
+  existingSecret: evcharge-db-secret
+  secretKey: mysql-root-password
+  existingInitConfigMap: evcharge-db-init
